@@ -1,0 +1,471 @@
+﻿<Window x:Class="MonoLogic.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MonoLogic"
+        Height="900" Width="1260"
+        MinHeight="740" MinWidth="1020"
+        FontFamily="Segoe UI"
+        Name="RootWindow">
+ 
+    <Window.Resources>
+
+        <!-- Dark theme defaults -->
+        <SolidColorBrush x:Key="BrBgRoot"    Color="#1a1a2e"/>
+        <SolidColorBrush x:Key="BrBgPanel"   Color="#16213e"/>
+        <SolidColorBrush x:Key="BrBgCard"    Color="#0f3460"/>
+        <SolidColorBrush x:Key="BrAccent"    Color="#e94560"/>
+        <SolidColorBrush x:Key="BrTxtPrim"   Color="#ffffff"/>
+        <SolidColorBrush x:Key="BrTxtMuted"  Color="#aaaacc"/>
+        <SolidColorBrush x:Key="BrTxtDim"    Color="#8888aa"/>
+        <SolidColorBrush x:Key="BrSep"       Color="#2a2a4a"/>
+        <SolidColorBrush x:Key="BrBtnAna"    Color="#1a3a6e"/>
+        <SolidColorBrush x:Key="BrSuccess"   Color="#4caf50"/>
+
+       
+        <ControlTemplate x:Key="RoundBtn" TargetType="Button">
+            <Border Name="Bd"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="7"
+                    Padding="{TemplateBinding Padding}">
+                <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Bd" Property="Opacity" Value="0.80"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="Bd" Property="Opacity" Value="0.60"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Bd" Property="Opacity" Value="0.40"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <!-- Section-label style reused throughout the panel -->
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="Foreground"  Value="{DynamicResource BrTxtMuted}"/>
+            <Setter Property="FontSize"    Value="10"/>
+            <Setter Property="FontWeight"  Value="SemiBold"/>
+            <Setter Property="Margin"      Value="0,0,0,7"/>
+        </Style>
+
+    </Window.Resources>
+
+    <Window.Background>
+        <DynamicResource ResourceKey="BrBgRoot"/>
+    </Window.Background>
+ 
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="290"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="230"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- HEADER BAR  -->
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                Background="{DynamicResource BrBgPanel}"
+                CornerRadius="10" Padding="16,10" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Setup controls (hidden once game starts) -->
+                <StackPanel Name="SetupPanel" Grid.Column="0"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                    <TextBlock Text="MonoLogic"
+                               Foreground="{DynamicResource BrAccent}"
+                               FontSize="22" FontWeight="Bold" FontFamily="Georgia"
+                               VerticalAlignment="Center" Margin="0,0,28,0"/>
+
+                    <StackPanel Margin="0,0,16,0" VerticalAlignment="Center">
+                        <TextBlock Text="Players"
+                                   Foreground="{DynamicResource BrTxtMuted}"
+                                   FontSize="11" Margin="0,0,0,3"/>
+                        <ComboBox Name="PlayerCountBox" Width="72" SelectedIndex="1"
+                                  BorderBrush="{DynamicResource BrAccent}">
+                            <ComboBoxItem Content="2"/>
+                            <ComboBoxItem Content="3"/>
+                            <ComboBoxItem Content="4"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,22,0" VerticalAlignment="Center">
+                        <TextBlock Text="Mode"
+                                   Foreground="{DynamicResource BrTxtMuted}"
+                                   FontSize="11" Margin="0,0,0,3"/>
+                        <CheckBox Name="UseAIBox" Content="Enable AI"
+                                  Foreground="{DynamicResource BrTxtPrim}"
+                                  VerticalAlignment="Center">
+                            <CheckBox.ToolTip>
+                                <ToolTip>
+                                    <TextBlock>
+                                        All players except Player 1 are controlled by AI.
+                                        <LineBreak/>The AI buys a property if it can afford it
+                                        while keeping a $200 safety buffer.
+                                    </TextBlock>
+                                </ToolTip>
+                            </CheckBox.ToolTip>
+                        </CheckBox>
+                    </StackPanel>
+
+                    <Button Content="▶  Start Game"
+                            Click="StartGame_Click"
+                            Height="36" Padding="22,0"
+                            FontSize="13" FontWeight="SemiBold"
+                            Foreground="White" BorderThickness="0"
+                            Background="{DynamicResource BrAccent}"
+                            Template="{StaticResource RoundBtn}"/>
+                </StackPanel>
+
+                <!-- Theme toggle - always visible -->
+                <Button Name="ThemeToggleBtn"
+                        Grid.Column="1"
+                        Content="☀  Light"
+                        Click="ThemeToggle_Click"
+                        Height="30" Padding="12,0" FontSize="11"
+                        Foreground="{DynamicResource BrTxtMuted}"
+                        Background="Transparent"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource BrTxtMuted}"
+                        VerticalAlignment="Center"
+                        Template="{StaticResource RoundBtn}">
+                    <Button.ToolTip>
+                        <ToolTip>
+                            <TextBlock>Toggle between dark and light mode.</TextBlock>
+                        </ToolTip>
+                    </Button.ToolTip>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!--  BOARD    -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="{DynamicResource BrBgPanel}"
+                CornerRadius="12" Padding="10" Margin="0,0,10,10">
+
+            <Viewbox Stretch="Uniform"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center">
+
+                <!-- 550x550 logical board - Viewbox scales this up/down -->
+                <Grid Name="RealBoardGrid" Width="550" Height="550">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.6*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.6*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1.6*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1.6*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Board centre: logo + heatmap legend -->
+                    <Border Grid.Row="1" Grid.Column="1"
+                            Grid.RowSpan="9" Grid.ColumnSpan="9"
+                            Background="#c8e6c9"
+                            BorderBrush="#2e7d32" BorderThickness="2"
+                            CornerRadius="4">
+                        <Grid>
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="M O N O P O L Y"
+                                           FontFamily="Georgia" FontSize="28"
+                                           FontWeight="Bold" Foreground="#1b5e20"
+                                           TextAlignment="Center">
+                                    <TextBlock.RenderTransform>
+                                        <RotateTransform Angle="-20"/>
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.RenderTransformOrigin>0.5,0.5</TextBlock.RenderTransformOrigin>
+                                </TextBlock>
+                                <TextBlock Text="M O N O L O G I C"
+                                           FontFamily="Georgia" FontSize="9"
+                                           Foreground="#388e3c"
+                                           TextAlignment="Center"
+                                           Margin="0,6,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="Green = Low  ·  Red = High visit probability"
+                                       FontSize="8" Foreground="#5a8a5a"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,8"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Squares injected at runtime by CreateRealBoard() -->
+                </Grid>
+            </Viewbox>
+        </Border>
+
+        <!--  CONTROL PANEL -->
+        <Border Grid.Row="1" Grid.Column="1"
+                Background="{DynamicResource BrBgPanel}"
+                CornerRadius="12" Padding="14" Margin="0,0,0,10">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel>
+
+                    <TextBlock Text="Game"
+                               Foreground="{DynamicResource BrAccent}"
+                               FontSize="14" FontWeight="Bold"
+                               Margin="0,0,0,12"/>
+
+                    <!-- Current player + dice result -->
+                    <Border Background="{DynamicResource BrBgCard}"
+                            CornerRadius="8" Padding="11"
+                            Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Name="CurrentPlayerText"
+                                       Foreground="{DynamicResource BrTxtPrim}"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       Text="No game running"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Name="DiceResultText"
+                                       Foreground="{DynamicResource BrTxtMuted}"
+                                       FontSize="11" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Roll Dice button -->
+                    <Button Name="RollDiceBtn"
+                            Content="🎲  Roll Dice"
+                            Click="RollDice_Click"
+                            Height="42" Margin="0,0,0,8"
+                            FontSize="13" FontWeight="SemiBold"
+                            Foreground="White" BorderThickness="0"
+                            Background="{DynamicResource BrAccent}"
+                            Template="{StaticResource RoundBtn}">
+                        <Button.ToolTip>
+                            <ToolTip>
+                                <TextBlock>Roll the dice and advance the current player.</TextBlock>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+
+                    <!-- End Game button (hidden until game starts) -->
+                    <Button Name="FinishGameButton"
+                            Content="✖  End Game"
+                            Click="FinishGame_Click"
+                            Height="32" Margin="0,0,0,4"
+                            FontSize="12"
+                            Foreground="{DynamicResource BrAccent}"
+                            Background="Transparent"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource BrAccent}"
+                            Visibility="Collapsed"
+                            Template="{StaticResource RoundBtn}"/>
+
+                    <Separator Background="{DynamicResource BrSep}" Margin="0,12,0,12"/>
+
+                    <!-- Rules -->
+                    <TextBlock Text="RULES" Style="{StaticResource SectionLabel}"/>
+                    <StackPanel Margin="0,0,0,14">
+                        <TextBlock Text="· One six-sided die per turn"
+                                   Foreground="{DynamicResource BrTxtDim}" FontSize="11" Margin="0,2"/>
+                        <TextBlock Text="· 2–4 players"
+                                   Foreground="{DynamicResource BrTxtDim}" FontSize="11" Margin="0,2"/>
+                        <TextBlock Text="· Starting money: $1 500"
+                                   Foreground="{DynamicResource BrTxtDim}" FontSize="11" Margin="0,2"/>
+                        <TextBlock Text="· Pass GO → collect $200"
+                                   Foreground="{DynamicResource BrTxtDim}" FontSize="11" Margin="0,2"/>
+                        <TextBlock Text="· Jail: skip 3 turns"
+                                   Foreground="{DynamicResource BrTxtDim}" FontSize="11" Margin="0,2"/>
+                    </StackPanel>
+
+                    <Separator Background="{DynamicResource BrSep}" Margin="0,0,0,12"/>
+
+                    <!-- Analysis buttons with rich tooltips -->
+                    <TextBlock Text="ANALYSIS" Style="{StaticResource SectionLabel}"/>
+
+                    <Button Content="▶  Simulation  (10 k turns)"
+                            Click="RunSimulation_Click"
+                            Height="34" Margin="0,0,0,6"
+                            Foreground="White" BorderThickness="0"
+                            Background="{DynamicResource BrBtnAna}"
+                            Template="{StaticResource RoundBtn}">
+                        <Button.ToolTip>
+                            <ToolTip MaxWidth="240">
+                                <StackPanel>
+                                    <TextBlock Text="Monte Carlo Simulation"
+                                               FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock TextWrapping="Wrap">
+                                        Simulates 10 000 dice rolls and tracks how often each
+                                        square is visited. The heatmap updates to show which
+                                        squares are mot frequently landed on — useful for identifying 
+                                        high -traffic properties and strategizing your purchases.
+                                    </TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+
+                    <Button Content="📊  Markov Analysis"
+                            Click="RunMarkov_Click"
+                            Height="34" Margin="0,0,0,6"
+                            Foreground="White" BorderThickness="0"
+                            Background="{DynamicResource BrBtnAna}"
+                            Template="{StaticResource RoundBtn}">
+                        <Button.ToolTip>
+                            <ToolTip MaxWidth="240">
+                                <StackPanel>
+                                    <TextBlock Text="Markov Chain Analysis"
+                                               FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock TextWrapping="Wrap">
+                                        Builds a mathematical model of all possible move and uses
+                                        power iteration approximate the long-run probability of
+                                        landing on each square. This provides a more stable and accurate distribution 
+                                        than simulation alone. Run this before Entropy and ROI Ranking.
+                                    </TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+
+                    <Button Content="🔀  Entropy"
+                            Click="Entropy_Click"
+                            Height="34" Margin="0,0,0,6"
+                            Foreground="White" BorderThickness="0"
+                            Background="{DynamicResource BrBtnAna}"
+                            Template="{StaticResource RoundBtn}">
+                        <Button.ToolTip>
+                            <ToolTip MaxWidth="240">
+                                <StackPanel>
+                                    <TextBlock Text="Board Entropy (Shannon)"
+                                               FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock TextWrapping="Wrap">
+                                        Measures how evenly the visit probabilities are distributed 
+                                        across all 40 squares (in bits).
+                                        Higher values indicate more randomness (more unidform distribution),
+                                        while lower values mean that a few squares dominate.
+                                        Requires Markov first.
+                                    </TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+
+                    <Button Content="💰  ROI Ranking"
+                            Click="ROI_Click"
+                            Height="34" Margin="0,0,0,6"
+                            Foreground="White" BorderThickness="0"
+                            Background="{DynamicResource BrBtnAna}"
+                            Template="{StaticResource RoundBtn}">
+                        <Button.ToolTip>
+                            <ToolTip MaxWidth="240">
+                                <StackPanel>
+                                    <TextBlock Text="Return-on-Investment Ranking"
+                                               FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock TextWrapping="Wrap">
+                                        Ranks each buyable property using the formula:
+                                        (visit probability × rent) ÷ price.
+                                        A high score indicates properties that are frequently visited
+                                        and offer better returns relative to their cost - making them 
+                                        string strategic investments.
+                                        Requires Markov first.
+                                    </TextBlock>
+                                </StackPanel>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- heatmap -->
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                Background="{DynamicResource BrBgPanel}"
+                CornerRadius="12" Margin="0,10,0,0">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Padding="14,12,14,12">
+                <StackPanel>
+                    <!-- Player cards -->
+                    <TextBlock Text="P L A Y E R S" Style="{StaticResource SectionLabel}" Margin="0,0,0,8"/>
+
+                    <ItemsControl Name="PlayersPanel">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <!-- Heatmap label + help icon -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="H E A T M A P"
+                                   Style="{StaticResource SectionLabel}"
+                                   Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <!-- Inline ? help icon -->
+                        <Border Background="{DynamicResource BrBgCard}"
+                                CornerRadius="9" Width="18" Height="18"
+                                VerticalAlignment="Center" Cursor="Help">
+                            <Border.ToolTip>
+                                <ToolTip MaxWidth="280">
+                                    <StackPanel>
+                                        <TextBlock Text="About the Heatmap"
+                                                   FontWeight="Bold" Margin="0,0,0,5"/>
+                                        <TextBlock TextWrapping="Wrap">
+                                            Each of the 40 squares is colour-coded based on how frequently it is visited (or its landing probability):
+                                            <LineBreak/>  Green = rarely visited <LineBreak/>  Red   = very frequently visited
+                                               <LineBreak/><LineBreak/>
+                                            Run Simulation or Markov Analysis to generate the heatmap.
+                                            Squares with higher visitation are more likely to generate rent,
+                                            but the best investments also depend on price and rent (see ROI Ranking).
+                                        </TextBlock>
+                                    </StackPanel>
+                                </ToolTip>
+                            </Border.ToolTip>
+                            <TextBlock Text="?" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource BrTxtMuted}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+ 
+                    <Border Background="{DynamicResource BrBgCard}"
+                            CornerRadius="8" Padding="6"
+                            Margin="0,0,0,16">
+                        <UniformGrid Name="BoardGrid" Columns="10" Height="184"/>
+                    </Border>
+
+                    
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+    </Grid>
+</Window>
