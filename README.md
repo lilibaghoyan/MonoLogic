@@ -62,7 +62,7 @@ MonoLogic is a Monopoly-inspired board game application that combines classic ga
 1. Go to:
 
    ```
-   bin/Release/netX.X-windows/publish/
+   bin/Release/app.publish
    ```
 2. Run:
 
@@ -122,7 +122,7 @@ MonoLogic is a Monopoly-inspired board game application that combines classic ga
 
 ## 👤 Author
 
-Individual project developed as part of a university coursework.
+Individual project developed as part of a university coursework by Lili Baghoyan
 
 ---
 
