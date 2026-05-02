@@ -71,7 +71,15 @@ MonoLogic is a Monopoly-inspired board game application that combines classic ga
    ```
 
 ---
+### Option 3 — Download Executable
 
+Download the executable file from the link below:
+
+👉 [Download MonoLogic]: [https://drive.google.com/drive/folders/1gaq_f6SekGcWWUbn5TO69xpHRNlk7Cyf?usp=sharing](url)
+
+1. Extract the files if needed  
+2. Run `MonoLogic.exe`  
+3. If a security warning appears, click **More Info → Run Anyway**
 ## 🎮 How to Use
 
 1. Choose number of players and AI settings
